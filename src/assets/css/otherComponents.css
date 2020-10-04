@@ -1,0 +1,29 @@
+.slider {
+    background: #d3d3d3;
+    border-radius: 5px;  
+    height: 7px;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity .2s;
+    width: 50%;
+    -webkit-appearance: none;
+    -webkit-transition: .2s;
+  }
+  
+  .slider::-webkit-slider-thumb {
+      appearance: none;
+      background: #4CAF50;
+      border-radius: 50%; 
+      cursor: pointer;
+      height: 20px;
+      width: 20px;
+      -webkit-appearance: none;
+  }
+  
+  .slider::-moz-range-thumb {
+      background: #4CAF50;
+      border-radius: 50%;
+      cursor: pointer;
+      height: 20px;
+      width: 20px;
+  }

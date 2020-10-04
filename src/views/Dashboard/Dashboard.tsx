@@ -47,6 +47,8 @@ import TitleSection from "../../components/Title/Title";
 import BlockData from "../../components/Block/Block";
 import Moment from 'moment';
 
+import "../../assets/css/otherComponents.css";
+
 interface Props {
   classes: any;
 }
@@ -218,11 +220,12 @@ class Dashboard extends React.Component<Props, State> {
           />
         </GridContainer>
         <TitleSection title="Parte 2" />
-        <input type="range" min="5" max="23" defaultValue="7" step="1" onChange={(e) => this.handleChangeDaysResponse(e.target.value)}/>
+        
         
         
         <GridContainer>
         <GridItem xs={12} sm={12} md={6}>
+        <input className="slider" type="range" min="5" max="23" defaultValue="7" step="1" onChange={(e) => this.handleChangeDaysResponse(e.target.value)}/>
             <Card chart={true}>
               <CardHeader color="success">
                 <ChartistGraph

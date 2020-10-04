@@ -17,6 +17,7 @@ import BugReport from "@material-ui/icons/BugReport";
 import Code from "@material-ui/icons/Code";
 import Cloud from "@material-ui/icons/Cloud";
 import CheckIcon from "@material-ui/icons/Check";
+
 // core components
 import GridItem from "../../components/Grid/GridItem";
 import GridContainer from "../../components/Grid/GridContainer";
@@ -60,6 +61,7 @@ interface State {
   messageFailed: boolean;
   apiResponse?: APIResponse;
   apiResponseGeneral?: APIResponseGeneral;
+  apiResponseRegions?: APIResponseGeneral;
   totalDaysGeneral: number;
   
 }
@@ -85,6 +87,7 @@ type APIResponse = {
 type APIResponseGeneral = {
   list:{
     dt:number;
+    name:string;
     main:{
       temp:number;
     }
@@ -110,19 +113,29 @@ class Dashboard extends React.Component<Props, State> {
 
   componentDidMount(){
     const APPID="c4d9c71fbfaf3e54583129ce84241182";
-    const URL_BRASIL ="https://api.openweathermap.org/data/2.5/weather?q=brasil&appid=c4d9c71fbfaf3e54583129ce84241182&units=metric";
-    const URL_5DAYS="https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=-10&lon=-55&dt=1601596800&appid=c4d9c71fbfaf3e54583129ce84241182&units=metric"
-    const URL_5DAYSJF="https://api.openweathermap.org/data/2.5/forecast?q=juiz%20de%20fora&appid=c4d9c71fbfaf3e54583129ce84241182&lang=pt&units=metric";
+    //const URL_BRASIL ="https://api.openweathermap.org/data/2.5/weather?q=brasil&appid=c4d9c71fbfaf3e54583129ce84241182&units=metric";
+    //const URL_5DAYS="https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=-10&lon=-55&dt=1601596800&appid=c4d9c71fbfaf3e54583129ce84241182&units=metric"
+
+
+
+
+    const URL_CURRENT =`https://api.openweathermap.org/data/2.5/weather?q=juiz%20de%20fora&appid=${APPID}&lang=pt&units=metric`;
+    const URL_DAYSJF=`https://api.openweathermap.org/data/2.5/forecast?q=juiz%20de%20fora&appid=${APPID}&lang=pt&units=metric`;
+    const URL_REGION= `https://api.openweathermap.org/data/2.5/find?lat=-21.76&lon=-43.35&cnt=10&appid=${APPID}&lang=pt&units=metric`;
     
-    fetch(URL_BRASIL)    
+    fetch(URL_CURRENT)    
     .then((response) => response.json())
     .then((response: APIResponse) => this.setState({ apiResponse: response }));
 
 
-     fetch(URL_5DAYSJF)    
+     fetch(URL_DAYSJF)    
     .then((response) => response.json())
     .then((response: APIResponseGeneral) => this.setState({ apiResponseGeneral: response }));
 
+
+    fetch(URL_REGION)    
+    .then((response) => response.json())
+    .then((response: APIResponseGeneral) => this.setState({ apiResponseRegions: response }));    
   }
 
 
@@ -143,12 +156,18 @@ class Dashboard extends React.Component<Props, State> {
 
   render() {
     const { classes } = this.props;
-    const { creatingMessage, messageFailed, messageSuccess, apiResponseGeneral } = this.state;
+    const { creatingMessage, messageFailed, messageSuccess, apiResponseGeneral, apiResponseRegions } = this.state;
+    const currentHour = Moment().format('HH'); 
+  
 
 
     let tempChart: {labels: string[], series: number[][]}  ={
       labels:[],
       series:[]
+    }
+
+    let dataChart: {tabledata: string[][]}  ={
+      tabledata:[]
     }
     
     if (apiResponseGeneral){
@@ -163,11 +182,35 @@ class Dashboard extends React.Component<Props, State> {
             return item.main.temp
           })
         ],
-      }      
+      }
     }
+
+    if (apiResponseRegions){
+      const list = apiResponseRegions.list
+      .slice(3, 8)
+      .map((item) => 
+      {
+        //console.log([item.name, item.name],)
+        return [
+          item.name,
+          item.name,
+        ];
+      })
+      dataChart.tabledata = list;
+     // console.log(list)
+      /*
+      list.map( (item) =>{
+        console.log([item.name, item.name])
+        return [item.name, item.name]
+      })
+      */
+     // console.log(list)
+    }
+
+
     return (
       <div>
-        <TitleSection title="O clima no Brasil hoje" />
+        <TitleSection title="O clima em Juiz de Fora hoje:" />
         <GridContainer>
           <BlockData
             classes={classes}
@@ -219,13 +262,13 @@ class Dashboard extends React.Component<Props, State> {
             md={3}
           />
         </GridContainer>
-        <TitleSection title="Parte 2" />
+        <TitleSection title="Previsões" />
         
         
         
         <GridContainer>
         <GridItem xs={12} sm={12} md={6}>
-        <input className="slider" type="range" min="5" max="23" defaultValue="7" step="1" onChange={(e) => this.handleChangeDaysResponse(e.target.value)}/>
+        <input className="slider" type="range" min="5" max="23" defaultValue={currentHour} step="1" onChange={(e) => this.handleChangeDaysResponse(e.target.value)}/>
             <Card chart={true}>
               <CardHeader color="success">
                 <ChartistGraph
@@ -236,7 +279,8 @@ class Dashboard extends React.Component<Props, State> {
               </CardHeader>
 
               <CardBody>
-                <h4 className={classes.cardTitle}>Temperaturas nas últimas horas</h4>
+                <h4 className={classes.cardTitle}>Temperaturas nas próximas horas</h4>
+
                 <p className={classes.cardCategory}>
                   <span className={classes.successText}>
                     <ArrowUpward className={classes.upArrowCardCategory} /> 55%
@@ -254,31 +298,30 @@ class Dashboard extends React.Component<Props, State> {
           <GridItem xs={12} sm={12} md={6}>
             <Card>
               <CardHeader color="warning">
-                <h4 className={classes.cardTitleWhite}>Employees Stats</h4>
+                <h4 className={classes.cardTitleWhite}>Temperatura em nossa região</h4>
                 <p className={classes.cardCategoryWhite}>
-                  New employees on 15th September, 2016
+                  Algumas cidades de nossa região
                 </p>
               </CardHeader>
               <CardBody>
-                {
-                 //this.state.apiResponseGeneral?.hourly.map((item) =>{
-                 //  return item.temp
-                // })
-                 
-                //console.log(this.state.apiResponseGeneral?.hourly)                  
-                }
                 <Table
                   tableHeaderColor="warning"
-                  tableHead={["ID", "Name", "Salary", "Country"]}
+                  tableHead={["Cidade", "Temperatura"]}
+                  tableData={dataChart.tabledata}
+                   /*
                   tableData={[
-                    ["1", "Dakota Rice", "$36,738", "Niger"],
-                    ["2", "Minerva Hooper", "$23,789", "Curaçao"],
-                    ["3", "Sage Rodriguez", "$56,142", "Netherlands"],
-                    ["4", "Philip Chaney", "$38,735", "Korea, South"],
+                    ["1", "Dakota Rice"],
+                    ["2", "Minerva Hooper"],
+                    ["3", "Sage Rodriguez"],
+                    ["4", "Philip Chaney"],
                   ]}
+                 */
+               
                 />
               </CardBody>
             </Card>
+            { //console.log(dataChart)
+            }
           </GridItem>
           </GridContainer>
         <TitleSection title="Parte 3" />
@@ -354,100 +397,7 @@ class Dashboard extends React.Component<Props, State> {
           </GridItem>
         </GridContainer>
     
-        <GridContainer>
-          <GridItem xs={12}>
-            <Card>
-              <CardHeader color="success">
-                <div className={classes.messages}>
-                  <h4 className={classes.cardTitleWhite}>
-                    Mensagens Positivas
-                  </h4>
-                  {!creatingMessage && (
-                    <Button
-                      color="transparent"
-                      variant="outlined"
-                      onClick={() => this.setState({ creatingMessage: true })}
-                    >
-                      Enviar Mensagem
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardBody>
-                {!creatingMessage ? (
-                  <React.Fragment>
-                    <h5 className={classes.cardTitle}>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Cras ac est pulvinar, tempor turpis id, vehicula magna.
-                    </h5>
-                    <p className={classes.cardCategory}>Jane Doe</p>
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    <GridContainer>
-                      <GridItem xs={12}>
-                        <CustomInput
-                          labelText="Nome"
-                          id="name"
-                          color="success"
-                          formControlProps={{
-                            fullWidth: true,
-                          }}
-                        />
-                      </GridItem>
-                    </GridContainer>
-                    <GridContainer>
-                      <GridItem xs={12}>
-                        <CustomInput
-                          labelText="Mensagem"
-                          id="message"
-                          formControlProps={{
-                            fullWidth: true,
-                          }}
-                          inputProps={{
-                            multiline: true,
-                            rows: 5,
-                          }}
-                        />
-                      </GridItem>
-                    </GridContainer>
-                  </React.Fragment>
-                )}
-              </CardBody>
-              {creatingMessage && (
-                <CardFooter>
-                  <Button
-                    color="danger"
-                    onClick={() => this.setState({ creatingMessage: false })}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button color="success">Enviar Mensagem</Button>
-                </CardFooter>
-              )}
-              {messageFailed && (
-                <CardFooter>
-                  <div className={classes.stats}>
-                    <Danger>
-                      <Warning />
-                      Falha ao enviar mensagem
-                    </Danger>
-                  </div>
-                </CardFooter>
-              )}
-              {messageSuccess && (
-                <CardFooter>
-                  <div className={classes.stats}>
-                    <Success>
-                      <CheckIcon />
-                      Mensagem enviada com sucesso
-                    </Success>
-                  </div>
-                </CardFooter>
-              )}
-            </Card>
-          </GridItem>
-        </GridContainer>
+      
       </div>
     );
   }

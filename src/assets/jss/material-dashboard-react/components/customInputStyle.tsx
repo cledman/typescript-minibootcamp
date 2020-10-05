@@ -36,7 +36,7 @@ const customInputStyle = createStyles({
   labelRoot: {
     ...defaultFont,
     color: grayColor[3] + ' !important',
-    fontWeight: 400,
+    fontWeight: 'bold',
     fontSize: '14px',
     lineHeight: '1.42857'
   },

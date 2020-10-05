@@ -42,7 +42,7 @@ const customTabsStyle = createStyles({
     padding: '0px'
   },
   tabLabel: {
-    fontWeight: 500,
+    fontWeight: "bold",
     fontSize: '12px'
   },
   tabSelected: {

@@ -27,3 +27,47 @@
       height: 20px;
       width: 20px;
   }
+  #mainbar{
+      font-size: 2rem;
+      text-align: center;
+  }
+
+  #mainbar input{
+        background: rgb(224, 221, 224);
+        border: none;
+        border-radius: 2em;
+        font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+        margin:5px;
+        padding:5px;
+        width: 10%;
+        z-index: 999 !important;
+  }
+
+  #mainbar button{
+    background: linear-gradient(60deg, #26c6da, #00acc1);
+    border: none;    
+    border-radius: 2em;
+    color:#fff;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    margin:5px;
+    padding:5px;
+  }
+  .iconWeather{
+    
+  }
+
+  #mainImage{
+      align-items: center;
+      background: rgb(104, 98, 98) !important;
+      border-radius: 50%;    
+      color: rgb(235, 228, 228);  
+      display: block;
+      flex-direction: column;
+      height: 200px;
+      line-height: 1.8rem;
+      margin: 0 auto 0;
+      margin-bottom: 20px;;
+      padding: 10px;
+      position: relative;
+      width: 200px;
+  }

@@ -31,7 +31,7 @@ import CardHeader from "../../components/Card/CardHeader";
 import CardIcon from "../../components/Card/CardIcon";
 import CardBody from "../../components/Card/CardBody";
 import CardFooter from "../../components/Card/CardFooter";
-
+import InputBase from '@material-ui/core/InputBase';
 import { bugs, website, server } from "../../variables/general";
 
 import {
@@ -63,6 +63,12 @@ interface State {
   apiResponseGeneral?: APIResponseGeneral;
   apiResponseRegions?: APIResponseGeneral;
   totalDaysGeneral: number;
+  currentCity: string;
+  currentLon:number;
+  currentLat:number;
+  currentLang:string;
+  currentSearch:string;
+  currentCountry:string;
   
 }
 
@@ -74,23 +80,35 @@ type APIResponse = {
   weather: Array<{
     id: number;
     description: string;
+    icon:string;
   }>
-  main: {
-    temp: number;
-    feels_like: number;
-    temp_min: number;
-    temp_max:number;
-    humidity:number
+    main: {
+      temp: number;
+      feels_like: number;
+      temp_min: number;
+      temp_max:number;
+      humidity:number
+  }
+  sys:{
+    country:string
   }
 }
 
 type APIResponseGeneral = {
   list:{
     dt:number;
+    id:number;
     name:string;
     main:{
       temp:number;
-    }
+    };
+    weather: Array<{
+      id: number;
+      description: string;
+    }>
+    sys:{
+      country:string
+    }    
   }[] 
 }
 
@@ -103,37 +121,39 @@ class Dashboard extends React.Component<Props, State> {
       creatingMessage: false,
       messageSuccess: true,
       messageFailed: true,
-      totalDaysGeneral:5
+      totalDaysGeneral:5,
+      currentCity: "Juiz de Fora",
+      currentLon:-43.35,
+      currentLat:-21.76,
+      currentLang:"pt",
+      currentSearch:"",
+      currentCountry:"Br"
+      
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeIndex = this.handleChangeIndex.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
+
   }
 
 
 
-  componentDidMount(){
+  componentDidMount = async () => {
     const APPID="c4d9c71fbfaf3e54583129ce84241182";
-    //const URL_BRASIL ="https://api.openweathermap.org/data/2.5/weather?q=brasil&appid=c4d9c71fbfaf3e54583129ce84241182&units=metric";
-    //const URL_5DAYS="https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=-10&lon=-55&dt=1601596800&appid=c4d9c71fbfaf3e54583129ce84241182&units=metric"
-
-
-
-
-    const URL_CURRENT =`https://api.openweathermap.org/data/2.5/weather?q=juiz%20de%20fora&appid=${APPID}&lang=pt&units=metric`;
-    const URL_DAYSJF=`https://api.openweathermap.org/data/2.5/forecast?q=juiz%20de%20fora&appid=${APPID}&lang=pt&units=metric`;
-    const URL_REGION= `https://api.openweathermap.org/data/2.5/find?lat=-21.76&lon=-43.35&cnt=10&appid=${APPID}&lang=pt&units=metric`;
     
-    fetch(URL_CURRENT)    
+    const URL_CURRENT =`https://api.openweathermap.org/data/2.5/weather?q=${this.state.currentCity}&appid=${APPID}&lang=${this.state.currentLang}&units=metric`;
+    const URL_DAYSJF=`https://api.openweathermap.org/data/2.5/forecast?q=${this.state.currentCity}&appid=${APPID}&lang=${this.state.currentLang}&units=metric`;
+    const URL_REGION= `https://api.openweathermap.org/data/2.5/find?lat=${this.state.currentLat}&lon=${this.state.currentLon}&cnt=10&appid=${APPID}&lang=pt&units=metric`;
+
+    await fetch(URL_CURRENT)    
     .then((response) => response.json())
     .then((response: APIResponse) => this.setState({ apiResponse: response }));
 
-
-     fetch(URL_DAYSJF)    
+    await fetch(URL_DAYSJF)    
     .then((response) => response.json())
     .then((response: APIResponseGeneral) => this.setState({ apiResponseGeneral: response }));
 
-
-    fetch(URL_REGION)    
+    await fetch(URL_REGION)    
     .then((response) => response.json())
     .then((response: APIResponseGeneral) => this.setState({ apiResponseRegions: response }));    
   }
@@ -152,11 +172,81 @@ class Dashboard extends React.Component<Props, State> {
     this.setState({totalDaysGeneral:idx });
   }
 
+  onChange = (e:any) => {
+    this.setState({ currentCity: e.target.value} )
+  }
+
+  onSubmit = (e:any) => {
+    e.preventDefault();
+
+    const APPID="c4d9c71fbfaf3e54583129ce84241182";
+    const URL_CURRENT =`https://api.openweathermap.org/data/2.5/weather?q=${this.state.currentCity}&appid=${APPID}&lang=${this.state.currentLang}&units=metric`;
+    
+    fetch(URL_CURRENT).then((response) => 
+    {
+      if(response.status == 200){           
+        
+       fetch(URL_CURRENT)    
+       .then((response) => response.json())
+       .then((response: APIResponse) => this.setState({ apiResponse: response }));
+       
+       
+     
+        const URL_REGION= `https://api.openweathermap.org/data/2.5/find?lat=${this.state.apiResponse?.coord.lat}&lon=${this.state.apiResponse?.coord.lon}&cnt=10&appid=${APPID}&lang=pt&units=metric`;
+        const URL_DAYSJF=`https://api.openweathermap.org/data/2.5/forecast?q=${this.state.currentCity}&appid=${APPID}&lang=${this.state.currentLang}&units=metric`;
+
+         fetch(URL_REGION)    
+         .then((response) => response.json())
+         .then((response: APIResponseGeneral) => this.setState({ apiResponseRegions: response }));             
+
+         fetch(URL_DAYSJF)    
+         .then((response) => response.json())
+         .then((response: APIResponseGeneral) => this.setState({ apiResponseGeneral: response }));        
+       } 
+        
+      })   
+      
+  }
 
 
+  //handleSearch = async(event: any) => {
+    handleSearch = (value:string) =>{
+        const APPID="c4d9c71fbfaf3e54583129ce84241182";
+        this.setState({currentCity: value});    
+
+        const URL_CURRENT =`https://api.openweathermap.org/data/2.5/weather?q=${value}&appid=${APPID}&lang=${this.state.currentLang}&units=metric`;
+        //console.log(URL_CURRENT)
+
+    fetch(URL_CURRENT).then((response) => {
+     if(response.status == 200){           
+       
+      fetch(URL_CURRENT)    
+      .then((response) => response.json())
+      .then((response: APIResponse) => this.setState({ apiResponse: response }));
+      
+      
+    
+       const URL_REGION= `https://api.openweathermap.org/data/2.5/find?lat=${this.state.apiResponse?.coord.lat}&lon=${this.state.apiResponse?.coord.lon}&cnt=10&appid=${APPID}&lang=pt&units=metric`;
+       
+        fetch(URL_REGION)    
+        .then((response) => response.json())
+        .then((response: APIResponseGeneral) => this.setState({ apiResponseRegions: response }));             
+        //console.log("event:"+this.s+ " state:"+this.state.currentSearch+ " "+URL_REGION)
+       //}
+          /* */
+      } 
+       
+       }) 
+
+ }
+
+
+
+      
+      
   render() {
     const { classes } = this.props;
-    const { creatingMessage, messageFailed, messageSuccess, apiResponseGeneral, apiResponseRegions } = this.state;
+    const { creatingMessage, messageFailed, messageSuccess, apiResponseGeneral, apiResponseRegions, currentCity } = this.state;
     const currentHour = Moment().format('HH'); 
   
 
@@ -186,17 +276,21 @@ class Dashboard extends React.Component<Props, State> {
     }
 
     if (apiResponseRegions){
+     
       const list = apiResponseRegions.list
+      
       .slice(3, 8)
+      //.filter( (item) => item.id !=3459505)
       .map((item) => 
-      {
-        //console.log([item.name, item.name],)
+      {        
         return [
-          item.name,
-          item.name,
+          item.name ,
+          item.main.temp.toFixed(1).toString()+"ºc",
+         item.weather[0].description
         ];
       })
       dataChart.tabledata = list;
+
      // console.log(list)
       /*
       list.map( (item) =>{
@@ -210,16 +304,44 @@ class Dashboard extends React.Component<Props, State> {
 
     return (
       <div>
-        <TitleSection title="O clima em Juiz de Fora hoje:" />
+        <br></br>
+        <div id="mainbar">
+          <form  onSubmit={this.onSubmit}     >
+          <label>Informe uma cidade: </label>
+          <input
+              placeholder="Informe uma cidade:"
+              onChange={this.onChange}
+              value={currentCity}
+            />
+
+         
+            <button type="submit">Procurar</button>
+          </form>        
+          <TitleSection title={`O clima em ${this.state.currentCity} - ${this.state.apiResponse?.sys.country} hoje:`} />
+          <div id="mainImage">
+            <img className="iconWeather" src={"http://openweathermap.org/img/wn/"+this.state.apiResponse?.weather[0].icon+"@2x.png" }/> <br />
+            {this.state.apiResponse?.weather[0].description}
+          </div>
+
+
+
+
+
+
+          </div>          
+         
+         
+
+
         <GridContainer>
           <BlockData
             classes={classes}
             color={"success"}
-            content={this.state.apiResponse?.main.temp_min}
+            content={this.state.apiResponse?.main.temp_min+"ºC"}
             icon={<Accessibility />}
-            iconFooter={<DateRange />}
-            textHeader="Temperatura Mínima"
-            textFooter="Rodapé"
+            iconFooter={<Danger />}
+            textHeader="Temperatura Máxima"
+            textFooter=""
             xs={12}
             sm={3}
             md={3}
@@ -227,11 +349,11 @@ class Dashboard extends React.Component<Props, State> {
           <BlockData
             classes={classes}
             color={"warning"}
-            content={this.state.apiResponse?.main.temp_max}
+            content={this.state.apiResponse?.main.temp_max+"ºC"}
             icon={<Accessibility />}
             iconFooter={<Danger />}
             textHeader="Temperatura Máxima"
-            textFooter="Rodapé"
+            textFooter=""
             xs={12}
             sm={3}
             md={3}
@@ -239,11 +361,11 @@ class Dashboard extends React.Component<Props, State> {
           <BlockData
             classes={classes}
             color={"danger"}
-            content={this.state.apiResponse?.main.feels_like}
+            content={this.state.apiResponse?.main.feels_like+"ºC"}
             icon={<Accessibility />}
             iconFooter={<Danger />}
             textHeader="Sensação términa"
-            textFooter="Rodapé"
+            textFooter=""
             xs={12}
             sm={3}
             md={3}
@@ -252,18 +374,17 @@ class Dashboard extends React.Component<Props, State> {
           <BlockData
             classes={classes}
             color={"info"}
-            content={this.state.apiResponse?.main.humidity}
+            content={this.state.apiResponse?.main.temp+"ºC"}
             icon={<Accessibility />}
             iconFooter={<Danger />}
-            textHeader="Umidade"
-            textFooter={"Atualizado"}
+            textHeader="Temperatura atual"
+            textFooter=""
             xs={12}
             sm={3}
             md={3}
           />
         </GridContainer>
         <TitleSection title="Previsões" />
-        
         
         
         <GridContainer>
@@ -281,16 +402,10 @@ class Dashboard extends React.Component<Props, State> {
               <CardBody>
                 <h4 className={classes.cardTitle}>Temperaturas nas próximas horas</h4>
 
-                <p className={classes.cardCategory}>
-                  <span className={classes.successText}>
-                    <ArrowUpward className={classes.upArrowCardCategory} /> 55%
-                  </span>{" "}
-                  increase in today sales.
-                </p>
               </CardBody>
               <CardFooter chart={true}>
                 <div className={classes.stats}>
-                  <AccessTime /> updated 4 minutes ago
+                  <AccessTime /> atualizado às {Moment().format('HH[h]mm') }
                 </div>
               </CardFooter>
             </Card>
@@ -298,104 +413,21 @@ class Dashboard extends React.Component<Props, State> {
           <GridItem xs={12} sm={12} md={6}>
             <Card>
               <CardHeader color="warning">
-                <h4 className={classes.cardTitleWhite}>Temperatura em nossa região</h4>
-                <p className={classes.cardCategoryWhite}>
-                  Algumas cidades de nossa região
-                </p>
+                <h4 className={classes.cardTitleWhite}>Temperatura em outras cidades</h4>
+
               </CardHeader>
               <CardBody>
                 <Table
                   tableHeaderColor="warning"
-                  tableHead={["Cidade", "Temperatura"]}
+                  tableHead={["Cidade", "Temperatura", "Condição"]}
                   tableData={dataChart.tabledata}
-                   /*
-                  tableData={[
-                    ["1", "Dakota Rice"],
-                    ["2", "Minerva Hooper"],
-                    ["3", "Sage Rodriguez"],
-                    ["4", "Philip Chaney"],
-                  ]}
-                 */
-               
                 />
               </CardBody>
             </Card>
-            { //console.log(dataChart)
-            }
+
           </GridItem>
           </GridContainer>
-        <TitleSection title="Parte 3" />
-        <GridContainer>
-          <GridItem xs={12} sm={12} md={4}>
-            <Card chart={true}>
-              <CardHeader color="success">
-                <ChartistGraph
-                  className="ct-chart"
-                  data={dailySalesChart.data}
-                  type="Line"
-                />
-              </CardHeader>
-              <CardBody>
-                <h4 className={classes.cardTitle}>Daily Sales</h4>
-                <p className={classes.cardCategory}>
-                  <span className={classes.successText}>
-                    <ArrowUpward className={classes.upArrowCardCategory} /> 55%
-                  </span>{" "}
-                  increase in today sales.
-                </p>
-              </CardBody>
-              <CardFooter chart={true}>
-                <div className={classes.stats}>
-                  <AccessTime /> updated 4 minutes ago
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-          <GridItem xs={12} sm={12} md={4}>
-            <Card chart={true}>
-              <CardHeader color="warning">
-                <ChartistGraph
-                  className="ct-chart"
-                  data={emailsSubscriptionChart.data}
-                  type="Bar"
-                />
-              </CardHeader>
-              <CardBody>
-                <h4 className={classes.cardTitle}>Email Subscriptions</h4>
-                <p className={classes.cardCategory}>
-                  Last Campaign Performance
-                </p>
-              </CardBody>
-              <CardFooter chart={true}>
-                <div className={classes.stats}>
-                  <AccessTime /> campaign sent 2 days ago
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-          <GridItem xs={12} sm={12} md={4}>
-            <Card chart={true}>
-              <CardHeader color="danger">
-                <ChartistGraph
-                  className="ct-chart"
-                  data={completedTasksChart.data}
-                  type="Line"
-                />
-              </CardHeader>
-              <CardBody>
-                <h4 className={classes.cardTitle}>Completed Tasks</h4>
-                <p className={classes.cardCategory}>
-                  Last Campaign Performance
-                </p>
-              </CardBody>
-              <CardFooter chart={true}>
-                <div className={classes.stats}>
-                  <AccessTime /> campaign sent 2 days ago
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-        </GridContainer>
+       
     
       
       </div>

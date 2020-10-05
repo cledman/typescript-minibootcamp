@@ -34,7 +34,7 @@ const footerStyle = createStyles({
     bottom: '0',
     borderTop: '1px solid ' + grayColor[11],
     padding: '15px 0',
-    ...defaultFont
+ 
   },
   container,
   a: {

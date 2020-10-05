@@ -69,6 +69,7 @@ interface State {
   currentLang:string;
   currentSearch:string;
   currentCountry:string;
+  mainMessage:string;
   
 }
 
@@ -127,7 +128,8 @@ class Dashboard extends React.Component<Props, State> {
       currentLat:-21.76,
       currentLang:"pt",
       currentSearch:"",
-      currentCountry:"Br"
+      currentCountry:"Br",
+      mainMessage:"O clima em Juiz de Fora hoje:"
       
     };
     this.handleChange = this.handleChange.bind(this);
@@ -185,13 +187,11 @@ class Dashboard extends React.Component<Props, State> {
     fetch(URL_CURRENT).then((response) => 
     {
       if(response.status == 200){           
-        
+        this.setState({mainMessage: `o clima em ${this.state.currentCity} hoje:` })
        fetch(URL_CURRENT)    
        .then((response) => response.json())
        .then((response: APIResponse) => this.setState({ apiResponse: response }));
-       
-       
-     
+            
         const URL_REGION= `https://api.openweathermap.org/data/2.5/find?lat=${this.state.apiResponse?.coord.lat}&lon=${this.state.apiResponse?.coord.lon}&cnt=10&appid=${APPID}&lang=pt&units=metric`;
         const URL_DAYSJF=`https://api.openweathermap.org/data/2.5/forecast?q=${this.state.currentCity}&appid=${APPID}&lang=${this.state.currentLang}&units=metric`;
 
@@ -202,6 +202,14 @@ class Dashboard extends React.Component<Props, State> {
          fetch(URL_DAYSJF)    
          .then((response) => response.json())
          .then((response: APIResponseGeneral) => this.setState({ apiResponseGeneral: response }));        
+       }
+       else
+       {
+        this.setState({mainMessage: `Nenhuma cidade encontrada com esse nome.` })
+        setTimeout(() => {
+          this.setState({mainMessage: `Digite outra cidade` })
+        }, 2000);
+
        } 
         
       })   
@@ -209,13 +217,13 @@ class Dashboard extends React.Component<Props, State> {
   }
 
 
-  //handleSearch = async(event: any) => {
+
     handleSearch = (value:string) =>{
         const APPID="c4d9c71fbfaf3e54583129ce84241182";
         this.setState({currentCity: value});    
 
         const URL_CURRENT =`https://api.openweathermap.org/data/2.5/weather?q=${value}&appid=${APPID}&lang=${this.state.currentLang}&units=metric`;
-        //console.log(URL_CURRENT)
+
 
     fetch(URL_CURRENT).then((response) => {
      if(response.status == 200){           
@@ -231,9 +239,7 @@ class Dashboard extends React.Component<Props, State> {
         fetch(URL_REGION)    
         .then((response) => response.json())
         .then((response: APIResponseGeneral) => this.setState({ apiResponseRegions: response }));             
-        //console.log("event:"+this.s+ " state:"+this.state.currentSearch+ " "+URL_REGION)
-       //}
-          /* */
+
       } 
        
        }) 
@@ -280,7 +286,7 @@ class Dashboard extends React.Component<Props, State> {
       const list = apiResponseRegions.list
       
       .slice(3, 8)
-      //.filter( (item) => item.id !=3459505)
+
       .map((item) => 
       {        
         return [
@@ -291,14 +297,6 @@ class Dashboard extends React.Component<Props, State> {
       })
       dataChart.tabledata = list;
 
-     // console.log(list)
-      /*
-      list.map( (item) =>{
-        console.log([item.name, item.name])
-        return [item.name, item.name]
-      })
-      */
-     // console.log(list)
     }
 
 
@@ -317,21 +315,13 @@ class Dashboard extends React.Component<Props, State> {
          
             <button type="submit">Procurar</button>
           </form>        
-          <TitleSection title={`O clima em ${this.state.currentCity} - ${this.state.apiResponse?.sys.country} hoje:`} />
+          <TitleSection title={this.state.mainMessage} />
           <div id="mainImage">
             <img className="iconWeather" src={"http://openweathermap.org/img/wn/"+this.state.apiResponse?.weather[0].icon+"@2x.png" }/> <br />
             {this.state.apiResponse?.weather[0].description}
           </div>
 
-
-
-
-
-
           </div>          
-         
-         
-
 
         <GridContainer>
           <BlockData

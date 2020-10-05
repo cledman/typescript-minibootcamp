@@ -63,7 +63,7 @@ const rtlStyle = createStyles({
     textDecoration: 'none',
     '& small': {
       color: grayColor[1],
-      fontWeight: 400,
+      fontWeight: "bold",
       lineHeight: 1
     }
   },
@@ -77,7 +77,7 @@ const rtlStyle = createStyles({
     textDecoration: 'none',
     '& small': {
       color: grayColor[1],
-      fontWeight: 400,
+      fontWeight: "bold",
       lineHeight: 1
     }
   }

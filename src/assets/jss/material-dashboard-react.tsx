@@ -234,7 +234,7 @@ const title = {
   fontFamily: '\'Roboto\', \'Helvetica\', \'Arial\', sans-serif',
   '& small': {
     color: grayColor[1],
-    fontWeight: 400,
+    fontWeight: "bold",
     lineHeight: '1'
   }
 };

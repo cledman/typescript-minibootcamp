@@ -28,7 +28,7 @@ const headerLinksStyle = (theme: Theme) => createStyles({
   },
   linkText: {
     zIndex: 4,
-    ...defaultFont,
+
     fontSize: '14px',
     margin: '0px'
   },

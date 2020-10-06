@@ -30,6 +30,7 @@
   #mainbar{
       font-size: 1.6rem;
       text-align: center;
+      width: 100%;
   }
 
   #mainbar input{

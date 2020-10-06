@@ -28,7 +28,7 @@
       width: 20px;
   }
   #mainbar{
-      font-size: 1.6rem;
+      font-size: 1.4rem;
       text-align: center;
       width: 100%;
   }
@@ -38,9 +38,10 @@
         border: none;
         border-radius: 2em;
         font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+        font-size: 0.7em;
         margin:5px;
-        padding:5px;
-        width: 100px;
+        padding:8px !important;
+        width: 270px;
         z-index: 999 !important;
   }
 
@@ -50,10 +51,15 @@
     border-radius: 2em;
     color:#fff;
     font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-size: 0.7em;
     margin:5px;
     padding:5px;
   }
- 
+  #mainbar label {
+    font-size: 0.7em;
+    left: -99px;
+    position: relative;
+}
   #mainImage{
       align-items: center;
       background: rgb(104, 98, 98) !important;

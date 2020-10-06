@@ -28,7 +28,7 @@
       width: 20px;
   }
   #mainbar{
-      font-size: 2rem;
+      font-size: 1.6rem;
       text-align: center;
   }
 
@@ -39,7 +39,7 @@
         font-family: "Roboto", "Helvetica", "Arial", sans-serif;
         margin:5px;
         padding:5px;
-        width: 10%;
+        width: 100px;
         z-index: 999 !important;
   }
 
@@ -52,10 +52,7 @@
     margin:5px;
     padding:5px;
   }
-  .iconWeather{
-    
-  }
-
+ 
   #mainImage{
       align-items: center;
       background: rgb(104, 98, 98) !important;

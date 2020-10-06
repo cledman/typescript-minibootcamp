@@ -305,7 +305,7 @@ class Dashboard extends React.Component<Props, State> {
         <br></br>
         <div id="mainbar">
           <form  onSubmit={this.onSubmit}     >
-          <label>Informe uma cidade: </label>
+          <label>Informe uma cidade: </label><br />
           <input
               placeholder="Informe uma cidade:"
               onChange={this.onChange}
